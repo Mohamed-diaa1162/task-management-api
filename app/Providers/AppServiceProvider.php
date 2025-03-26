@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\{Arr, ServiceProvider};
 use Illuminate\Database\Eloquent\{Model, Builder};
-use Illuminate\Support\Facades\{DB, URL, Vite, Gate,Cache};
+use Illuminate\Support\Facades\{DB, URL, Vite,Cache};
 
 final class AppServiceProvider extends ServiceProvider
 {
