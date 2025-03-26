@@ -10,3 +10,5 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth', 'namespace' => 'Auth'],
 
     Route::apiResource('/users', 'UserController')->only(['store', 'update']);
 });
+
+Route::apiResource('/tasks', 'TaskController')->middleware('auth:api');

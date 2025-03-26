@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\{Arr, ServiceProvider};
 use Illuminate\Database\Eloquent\{Model, Builder};
-use Illuminate\Support\Facades\{DB, URL, Vite,Cache};
+use Illuminate\Support\Facades\{DB, URL, Gate, Vite,Cache};
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +26,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureUrl();
         $this->configureVite();
         $this->configureModels();
+        $this->registerPolicies();
         $this->configureCommands();
     }
 
@@ -100,5 +101,10 @@ final class AppServiceProvider extends ServiceProvider
                 }
             }
         });
+    }
+
+    private function registerPolicies(): void
+    {
+        Gate::policy(\App\Models\Task::class, \App\Policies\TaskPolicy::class);
     }
 }
