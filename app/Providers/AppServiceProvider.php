@@ -106,5 +106,7 @@ final class AppServiceProvider extends ServiceProvider
     private function registerPolicies(): void
     {
         Gate::policy(\App\Models\Task::class, \App\Policies\TaskPolicy::class);
+
+        Gate::policy(\App\Models\Comment::class, \App\Policies\CommentPolicy::class);
     }
 }

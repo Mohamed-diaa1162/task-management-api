@@ -12,3 +12,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth', 'namespace' => 'Auth'],
 });
 
 Route::apiResource('/tasks', 'TaskController')->middleware('auth:api');
+
+Route::apiResource('/comments', 'CommentController')->middleware('auth:api');
+
