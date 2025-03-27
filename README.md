@@ -69,13 +69,6 @@ The API uses JWT for authentication. Here's how to authenticate:
 
 For detailed API usage, see the [API Documentation](API_DOCUMENTATION.md).
 
-## 🧪 Testing
-
-Run tests with PHPUnit:
-```bash
-php artisan test
-```
-
 ## 📧 Email Configuration
 
 For task notifications, configure SMTP settings in your `.env` file. Example for using Mailtrap:
@@ -106,7 +99,3 @@ php artisan queue:work
 - `database/migrations` - Database structure
 - `routes/v1` - API routes
 - `tests` - Test suites
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
