@@ -27,6 +27,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureVite();
         $this->configureModels();
         $this->registerPolicies();
+        $this->registerObservers();
         $this->configureCommands();
     }
 
@@ -108,5 +109,13 @@ final class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\Task::class, \App\Policies\TaskPolicy::class);
 
         Gate::policy(\App\Models\Comment::class, \App\Policies\CommentPolicy::class);
+    }
+
+
+    private function registerObservers(): void
+    {
+        \App\Models\Task::observe(\App\Observers\TaskObserver::class);
+
+        \App\Models\Comment::observe(\App\Observers\CommentObserver::class);
     }
 }

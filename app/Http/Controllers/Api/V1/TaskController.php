@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use App\Services\V1\CacheService;
 use App\Http\Controllers\Controller;
 use App\Actions\Task\{CreateTaskAction, UpdateTaskAction};
 use App\Http\Resources\Api\V1\{TaskResource, TasksResource};
@@ -14,18 +15,20 @@ final class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request , CacheService $service)
     {
-        $tasks = Task::query()
-            ->where(
-                fn($query) => $query
-                    ->where('user_id', auth('api')->id())
-                    ->orWhereHas('users', fn($query) => $query->where('user_id', auth('api')->id()))
-            )
-            ->paginateOrAll();
+        $tasks = cache()->tags('tasks-'. auth('api')->id())->remember($service->generateTaskCacheName($request), now()->addMinutes(15), function (){
+            return Task::query()
+                ->where(
+                    fn($query) => $query
+                        ->where('user_id', auth('api')->id())
+                        ->orWhereHas('users', fn($query) => $query->where('user_id', auth('api')->id()))
+                )
+                ->paginateOrAll();
+            });
 
-        return TasksResource::collection($tasks);
-    }
+            return TasksResource::collection($tasks);
+        }
 
     /**
      * Store a newly created resource in storage.
@@ -48,9 +51,7 @@ final class TaskController extends Controller
     {
         abort_if(authUser('api')->cannot('view', $task), 403, 'This action is unauthorized.');
 
-        $task->load(['owner', 'users']);
-
-        return new TaskResource($task);
+        return new TaskResource($task->load(['owner', 'users']));
     }
 
     /**
@@ -58,7 +59,6 @@ final class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-
         $task = (new UpdateTaskAction(
             task: $task,
             data: $request->safe()->except('assigned_to'),

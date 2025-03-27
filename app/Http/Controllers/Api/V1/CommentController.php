@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use App\Services\V1\CacheService;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\CommentResource;
 use App\Http\Requests\Api\V1\{StoreCommentRequest, UpdateCommentRequest};
@@ -13,14 +14,16 @@ final class CommentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, CacheService $service)
     {
-        $comments = Comment::query()
-            ->with('user', 'comments')
-            ->root()
-            ->when($request->has('task_id'), fn($query) => $query->where('task_id', $request->task_id))
-            ->when($request->has('comment_id'), fn($query) => $query->where('comment_id', $request->comment_id))
-            ->paginateOrAll();
+        $comments = cache()->tags('comments-'. $request->integer('task_id'))->remember($service->generateCommentCacheName($request), now()->addMinutes(15), function () use ($request) {
+            return Comment::query()
+                ->with('user', 'comments')
+                ->root()
+                ->when($request->has('task_id'), fn($query) => $query->where('task_id', $request->integer('task_id')))
+                ->when($request->has('comment_id'), fn($query) => $query->where('comment_id', $request->integer('comment_id')))
+                ->paginateOrAll();
+        });
 
         return CommentResource::collection($comments);
     }
@@ -33,7 +36,6 @@ final class CommentController extends Controller
         $comment = Comment::create($request->validated());
 
         return jsonResponse(data: new CommentResource($comment->load('user')), message: 'Comment created successfully', status: 201);
-
     }
 
     /**
@@ -41,7 +43,7 @@ final class CommentController extends Controller
      */
     public function show(Comment $comment)
     {
-        //
+        return new CommentResource($comment->load('user'));
     }
 
     /**
